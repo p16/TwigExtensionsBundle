@@ -1,6 +1,6 @@
 # Information
 
-TwigExtensionsBundle is just a collection of Twig Extensions i find useful.
+TwigExtensionsBundle is just a collection of Twig extensions i find useful.
 
 ## DecorateEmptyValueExtension
 
@@ -20,6 +20,10 @@ instead.
 ## FormatDateTimeExtension
 
 Provides filters for locale-aware formatting of date, time, and date/time values.
+
+## ChangeLanguageExtension
+
+Providing helpers for implementing a language change mechanism and handling localized routes.
 
 # Installation
 
@@ -46,12 +50,12 @@ Provides filters for locale-aware formatting of date, time, and date/time values
 		'Craue' => __DIR__.'/../vendor',
 	));
 
-## Make the Twig Extensions available by updating your configuration
+## Make the Twig extensions available by updating your configuration
 
 	// app/config/config.yml
 	craue_twig_extensions: ~
 
-# Examples to use the Extensions in your Twig template
+# Examples to use the extensions in your Twig template
 
 ## DecorateEmptyValueExtension
 
@@ -63,14 +67,42 @@ Provides filters for locale-aware formatting of date, time, and date/time values
 ## FormatDateTimeExtension
 
 	<h2>with current locale</h2>
-	date: {{ someDateTimeVariable | craue_date }}<br />
-	time: {{ someDateTimeVariable | craue_time }}<br />
-	both: {{ someDateTimeVariable | craue_datetime }}
+	date: {{ someDateTimeValue | craue_date }}<br />
+	time: {{ someDateTimeValue | craue_time }}<br />
+	both: {{ someDateTimeValue | craue_datetime }}
 
 	<h2>with specific locales</h2>
-	date: {{ someDateTimeVariable | craue_date('de-DE') }}<br />
-	time: {{ someDateTimeVariable | craue_time('de') }}<br />
-	both: {{ someDateTimeVariable | craue_datetime('en-GB') }}
+	date: {{ someDateTimeValue | craue_date('de-DE') }}<br />
+	time: {{ someDateTimeValue | craue_time('de') }}<br />
+	both: {{ someDateTimeValue | craue_datetime('en-GB') }}
+
+## ChangeLanguageExtension
+
+Rendering links for some kind of "change language" menu:
+
+	<ul>
+		{% for locale in craue_availableLocales %}
+			<li>
+				{% if locale == app.session.locale %}
+					{{ craue_languageName(locale) }}
+				{% else %}
+					<a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.all
+							| craue_cleanRouteParameters | merge({'_locale': locale})) }}"
+						>{{ craue_languageName(locale) }}</a>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+
+Additionally, instead of
+
+	<a href="{{ path('route', {'_locale': app.session.locale}) }}">text</a>
+
+you can use
+
+	<a href="{{ craue_localizedPath('route') }}">text</a>
+
+to build links containing the current locale.
 
 # Set/override default values
 
@@ -84,6 +116,23 @@ Provides filters for locale-aware formatting of date, time, and date/time values
 	; app/config/parameters.ini
 	craue_twig_extensions.formatDateTime.datetype="full"
 	craue_twig_extensions.formatDateTime.timetype="short"
+
+## ChangeLanguageExtension
+
+	; app/config/parameters.ini
+	craue_twig_extensions.changeLanguage.availableLocales[]="de"
+	craue_twig_extensions.changeLanguage.availableLocales[]="en"
+	craue_twig_extensions.changeLanguage.availableLocales[]="ru"
+	craue_twig_extensions.changeLanguage.showForeignLanguageNames=true
+	craue_twig_extensions.changeLanguage.showFirstUppercase=false
+
+With XML for example you can also set the keys to be more specific about the locales:
+
+	<parameter key="craue_twig_extensions.changeLanguage.availableLocales" type="collection">
+		<parameter key="de_DE">de</parameter>
+		<parameter key="en">en</parameter>
+		<parameter key="ru">ru</parameter>
+	</parameter>
 
 # Advanced stuff
 
@@ -118,5 +167,18 @@ Similar to the DecorateEmptyValueExtension you can define an alias for each filt
 	craue_twig_extensions.formatDateTime.timeFilterAlias="time"
 	craue_twig_extensions.formatDateTime.dateTimeFilterAlias="datetime"
 
-But, again, pay attention to not accidentally override built-in filters, although you can do it
-intentionally, e.g. by setting the dateFilterAlias to "date".
+But, again, pay attention to not accidentally override built-in filters, although you can do it intentionally, e.g. by
+setting the dateFilterAlias to "date".
+
+## ChangeLanguageExtension
+
+Again, you can define aliases:
+
+	; app/config/parameters.ini
+	craue_twig_extensions.changeLanguage.languageNameAlias=
+	craue_twig_extensions.changeLanguage.localizedPathAlias="path"
+	craue_twig_extensions.changeLanguage.cleanRouteParametersAlias=
+	craue_twig_extensions.changeLanguage.availableLocalesAlias=
+
+Don't accidentally override built-in filters/functions/globals, although you can do it intentionally, e.g. by setting
+the localizedPathAlias to "path".

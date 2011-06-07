@@ -5,7 +5,7 @@ namespace Craue\TwigExtensionsBundle\Twig\Extension;
 use Symfony\Component\HttpFoundation\Session;
 
 /**
- * Twig Extension providing filters for locale-aware formatting of date, time, and date/time values.
+ * Twig extension providing filters for locale-aware formatting of date, time, and date/time values.
  *
  * @author Christian Raue <christian.raue@gmail.com>
  * @copyright 2011 Christian Raue
@@ -13,19 +13,41 @@ use Symfony\Component\HttpFoundation\Session;
  */
 class FormatDateTimeExtension extends \Twig_Extension {
 
+	/**
+	 * @var string
+	 */
 	protected $locale = 'en-US';
+
+	/**
+	 * @var integer
+	 */
 	protected $datetype = \IntlDateFormatter::MEDIUM;
+
+	/**
+	 * @var integer
+	 */
 	protected $timetype = \IntlDateFormatter::MEDIUM;
 
+	/**
+	 * @var string
+	 */
 	protected $dateFilterAlias = null;
+
+	/**
+	 * @var string
+	 */
 	protected $timeFilterAlias = null;
+
+	/**
+	 * @var string
+	 */
 	protected $dateTimeFilterAlias = null;
 
 	/**
 	 * @param string $datetype Date format. Valid values are "none", "full", "long", "medium", or "short" (case insensitive).
 	 * @param string $timetype Time format. Valid values are "none", "full", "long", "medium", or "short" (case insensitive).
 	 */
-	public function __construct($datetype = null, $timetype = null) {
+	public function setDateTimeTypes($datetype = null, $timetype = null) {
 		if ($datetype !== null) {
 			$this->datetype = $this->getDateFormatterFormat($datetype);
 		}
@@ -40,13 +62,13 @@ class FormatDateTimeExtension extends \Twig_Extension {
 	 * @param string $dateTimeFilterAlias Alias for the date/time filter.
 	 */
 	public function setAliases($dateFilterAlias = null, $timeFilterAlias = null, $dateTimeFilterAlias = null) {
-		if ($dateFilterAlias !== null) {
+		if (!empty($dateFilterAlias)) {
 			$this->dateFilterAlias = $dateFilterAlias;
 		}
-		if ($timeFilterAlias !== null) {
+		if (!empty($timeFilterAlias)) {
 			$this->timeFilterAlias = $timeFilterAlias;
 		}
-		if ($dateTimeFilterAlias !== null) {
+		if (!empty($dateTimeFilterAlias)) {
 			$this->dateTimeFilterAlias = $dateTimeFilterAlias;
 		}
 	}
@@ -76,19 +98,19 @@ class FormatDateTimeExtension extends \Twig_Extension {
 
 		$formatDateMethod = new \Twig_Filter_Method($this, 'formatDate');
 		$filters['craue_date'] = $formatDateMethod;
-		if ($this->dateFilterAlias !== null) {
+		if (!empty($this->dateFilterAlias)) {
 			$filters[$this->dateFilterAlias] = $formatDateMethod;
 		}
 
 		$formatTimeMethod = new \Twig_Filter_Method($this, 'formatTime');
 		$filters['craue_time'] = $formatTimeMethod;
-		if ($this->timeFilterAlias !== null) {
+		if (!empty($this->timeFilterAlias)) {
 			$filters[$this->timeFilterAlias] = $formatTimeMethod;
 		}
 
 		$formatDateTimeMethod = new \Twig_Filter_Method($this, 'formatDateTime');
 		$filters['craue_datetime'] = $formatDateTimeMethod;
-		if ($this->dateTimeFilterAlias !== null) {
+		if (!empty($this->dateTimeFilterAlias)) {
 			$filters[$this->dateTimeFilterAlias] = $formatDateTimeMethod;
 		}
 
@@ -98,50 +120,50 @@ class FormatDateTimeExtension extends \Twig_Extension {
 	/**
 	 * Formats a timestamp as date.
 	 * @param mixed $value Date value to be formatted.
-	 * @param string $locale Locale to be used with {@see http://www.php.net/manual/class.intldateformatter.php}.
+	 * @param string $locale Locale to be used with {@see http://php.net/manual/class.intldateformatter.php}.
 	 * @return string Formatted date.
 	 */
-	public function formatDate($value, $locale = null) {
-		return $this->getFormattedDateTime($value, $locale, $this->datetype, \IntlDateFormatter::NONE);
+	public function formatDate($value, $locale = null, $format = "dd MMMM, yyyy") {
+		return $this->getFormattedDateTime($value, $locale, $this->datetype, \IntlDateFormatter::NONE, $format);
 	}
 
 	/**
 	 * Formats a timestamp as time.
 	 * @param mixed $value Time value to be formatted.
-	 * @param string $locale Locale to be used with {@see http://www.php.net/manual/class.intldateformatter.php}.
+	 * @param string $locale Locale to be used with {@see http://php.net/manual/class.intldateformatter.php}.
 	 * @return string Formatted time.
 	 */
-	public function formatTime($value, $locale = null) {
-		return $this->getFormattedDateTime($value, $locale, \IntlDateFormatter::NONE, $this->timetype);
+	public function formatTime($value, $locale = null, $format = "HH:mm") {
+		return $this->getFormattedDateTime($value, $locale, \IntlDateFormatter::NONE, $this->timetype, $format);
 	}
 
 	/**
 	 * Formats a timestamp as date and time.
 	 * @param mixed $value Date/time value to be formatted.
-	 * @param string $locale Locale to be used with {@see http://www.php.net/manual/class.intldateformatter.php}.
+	 * @param string $locale Locale to be used with {@see http://php.net/manual/class.intldateformatter.php}.
 	 * @return string Formatted date and time.
 	 */
-	public function formatDateTime($value, $locale = null) {
-		return $this->getFormattedDateTime($value, $locale, $this->datetype, $this->timetype);
+	public function formatDateTime($value, $locale = null, $format = "dd MMMM, yyyy - HH:mm") {
+		return $this->getFormattedDateTime($value, $locale, $this->datetype, $this->timetype, $format);
 	}
 
 	/**
 	 * Formats a date/time value.
 	 * @param mixed $value Date/time value to be formatted.
-	 * @param string $locale Locale to be used with {@see http://www.php.net/manual/class.intldateformatter.php}.
+	 * @param string $locale Locale to be used with {@see http://php.net/manual/class.intldateformatter.php}.
 	 * @param string $datetype Date format. Valid values are "none", "full", "long", "medium", or "short" (case insensitive).
 	 * @param string $timetype Time format. Valid values are "none", "full", "long", "medium", or "short" (case insensitive).
 	 * @return string Formatted date/time.
 	 */
-	protected function getFormattedDateTime($value, $locale, $datetype, $timetype) {
+	protected function getFormattedDateTime($value, $locale, $datetype, $timetype, $format = "dd MMMM, yyyy") {
 		$localeToUse = !empty($locale) ? $locale : $this->locale;
-		$formatter = new \IntlDateFormatter($localeToUse, $datetype, $timetype);
+		$formatter = new \IntlDateFormatter($localeToUse, $datetype, $timetype, 'Europe/Rome', \IntlDateFormatter::GREGORIAN, $format);
 		return $formatter->format($value);
 	}
 
 	/**
 	 * @param string $format Date/time format. Valid values are "none", "full", "long", "medium", or "short" (case insensitive).
-	 * @return int Appropriate value of {@see http://www.php.net/manual/en/class.intldateformatter.php#intl.intldateformatter-constants}.
+	 * @return int Appropriate value of {@see http://php.net/manual/class.intldateformatter.php#intl.intldateformatter-constants}.
 	 * @throws InvalidArgumentException
 	 */
 	protected function getDateFormatterFormat($format) {

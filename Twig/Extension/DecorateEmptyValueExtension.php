@@ -3,7 +3,7 @@
 namespace Craue\TwigExtensionsBundle\Twig\Extension;
 
 /**
- * Twig Extension providing an enhanced "default" filter to decorate empty values with a placeholder which can even be
+ * Twig extension providing an enhanced "default" filter to decorate empty values with a placeholder which can even be
  * an HTML entity.
  *
  * @author Christian Raue <christian.raue@gmail.com>
@@ -12,14 +12,20 @@ namespace Craue\TwigExtensionsBundle\Twig\Extension;
  */
 class DecorateEmptyValueExtension extends \Twig_Extension {
 
+	/**
+	 * @var string
+	 */
 	protected $placeholder = '&mdash;';
 
+	/**
+	 * @var string
+	 */
 	protected $filterAlias = null;
 
 	/**
 	 * @param mixed $placeholder Placeholder to use instead of empty values.
 	 */
-	public function __construct($placeholder = null) {
+	public function setPlaceholder($placeholder = null) {
 		if ($placeholder !== null) {
 			$this->placeholder = $placeholder;
 		}
@@ -29,7 +35,7 @@ class DecorateEmptyValueExtension extends \Twig_Extension {
 	 * @param string $filterAlias Alias for the filter.
 	 */
 	public function setAlias($filterAlias = null) {
-		if ($filterAlias !== null) {
+		if (!empty($filterAlias)) {
 			$this->filterAlias = $filterAlias;
 		}
 	}
@@ -52,7 +58,7 @@ class DecorateEmptyValueExtension extends \Twig_Extension {
 			'is_safe' => array('html'),
 		));
 		$filters['craue_default'] = $decorateEmptyValueMethod;
-		if ($this->filterAlias !== null) {
+		if (!empty($this->filterAlias)) {
 			$filters[$this->filterAlias] = $decorateEmptyValueMethod;
 		}
 
