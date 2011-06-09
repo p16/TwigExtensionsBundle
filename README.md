@@ -4,7 +4,7 @@ TwigExtensionsBundle is just a collection of Twig extensions i find useful.
 
 ## DecorateEmptyValueExtension
 
-Provides an enhanced "default" filter to decorate empty values with a placeholder which can even be HTML.
+Provides an enhanced `default` filter to decorate empty values with a placeholder which can even be HTML.
 
 Usually, if you want to use HTML, e.g. the HTML entity "&mdash;", as value for the default filter in an HTML Twig
 template you have to do cumbersome
@@ -16,6 +16,10 @@ to make it render properly. With this extension you can write
 	{{ somevalue | craue_default }}
 
 instead.
+
+## ArrayHelperExtension
+
+Provides a `without` filter wrapping PHP's `array_diff` function.
 
 ## FormatDateTimeExtension
 
@@ -63,6 +67,12 @@ Providing helpers for implementing a language change mechanism and handling loca
 	{{ someValueWhichMayBeEmpty | craue_default('no value') }}<br />
 	{{ someValueWhichMayBeEmpty | craue_default('&ndash;') }}<br />
 	{{ someValueWhichMayBeEmpty | craue_default(0) }}
+
+## ArrayHelperExtension
+
+	{{ anArray | craue_without(aValueOrAnArray) | join(', ') }}<br/ >
+	{{ ['red', 'green', 'yellow', 'blue'] | craue_without('yellow') | join(', ') }} will print "red, green, blue"<br/ >
+	{{ ['red', 'green', 'yellow', 'blue'] | craue_without(['yellow', 'black', 'red']) | join(', ') }} will print "green, blue"
 
 ## FormatDateTimeExtension
 
@@ -144,7 +154,7 @@ You can define an alias for the filter if you don't like to write
 
 	{{ somevalue | craue_default }}
 
-all the time. Setting this to "d" for example with
+all the time. Setting this to `"d"` for example with
 
 	; app/config/parameters.ini
 	craue_twig_extensions.decorateEmptyValue.filterAlias="d"
@@ -154,23 +164,36 @@ allows you to write
 	{{ somevalue | d }}
 
 in your Twig Template. But pay attention to not accidentally override built-in filters, although you can do it
-intentionally, e.g. by setting the alias to "default".
+intentionally, e.g. by setting the alias to `"default"`.
+
+## ArrayHelperExtension
+
+### Alias
+
+Similar to the DecorateEmptyValueExtension you can define an alias:
+
+	; app/config/parameters.ini
+	craue_twig_extensions.arrayHelper.withoutAlias="without"
+
+But, again, pay attention to not accidentally override built-in filters, although you can do it intentionally.
 
 ## FormatDateTimeExtension
 
 ### Aliases
 
-Similar to the DecorateEmptyValueExtension you can define an alias for each filter:
+Again, you can define an alias for each filter:
 
 	; app/config/parameters.ini
 	craue_twig_extensions.formatDateTime.dateFilterAlias="date"
 	craue_twig_extensions.formatDateTime.timeFilterAlias="time"
 	craue_twig_extensions.formatDateTime.dateTimeFilterAlias="datetime"
 
-But, again, pay attention to not accidentally override built-in filters, although you can do it intentionally, e.g. by
-setting the dateFilterAlias to "date".
+Don't accidentally override built-in filters, although you can do it intentionally, e.g. by setting the
+dateFilterAlias to `"date"`.
 
 ## ChangeLanguageExtension
+
+### Aliases
 
 Again, you can define aliases:
 
@@ -180,5 +203,4 @@ Again, you can define aliases:
 	craue_twig_extensions.changeLanguage.cleanRouteParametersAlias=
 	craue_twig_extensions.changeLanguage.availableLocalesAlias=
 
-Don't accidentally override built-in filters/functions/globals, although you can do it intentionally, e.g. by setting
-the localizedPathAlias to "path".
+Don't accidentally override built-in filters/functions/globals, although you can do it intentionally, e.g. by setting the localizedPathAlias to `"path"`.
